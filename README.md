@@ -15,9 +15,9 @@ ColorPickerDialog colorPickerDialog = new ColorPickerDialog(
                     context,
                     (int)initial_color,
                     "title of dialog",
+                    "text for OK button",
                     "text for cancel button",
                     "text for More button",
-                    "text for OK button",
                     this::textView.setColor); //listener method it will pass the selector color as int
 ```
 
