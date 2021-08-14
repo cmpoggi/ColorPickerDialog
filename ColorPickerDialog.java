@@ -53,15 +53,27 @@ public class ColorPickerDialog {
         this.mContext = context;
         this.strTitle = title;
         this.strAccept = "Ok";
-        this.strMore = "More";
         this.strCancel = "Cancel";
+        this.strMore = "More";
         this.initialColor = initColor;
         this.selectedColor = initColor;
         this.mListener = listener;
     }
 
-    public ColorPickerDialog(Context context, int initColor, String title, String cancel,
-                             String more, String accept, onColorSelectedListener listener) {
+    public ColorPickerDialog(Context context, int initColor, String title, String accept,
+                             String cancel, onColorSelectedListener listener) {
+        this.mContext = context;
+        this.strTitle = title;
+        this.strAccept = accept;
+        this.strMore = "";
+        this.strCancel = cancel;
+        this.initialColor = initColor;
+        this.selectedColor = initColor;
+        this.mListener = listener;
+    }
+
+    public ColorPickerDialog(Context context, int initColor, String title, String accept,
+                             String cancel, String more, onColorSelectedListener listener) {
         this.mContext = context;
         this.strTitle = title;
         this.strAccept = accept;
@@ -642,7 +654,6 @@ public class ColorPickerDialog {
         if (!strTitle.isEmpty()) {
             TextView tvTitle = initCustomTitle();
             builder.setCustomTitle(tvTitle);
-            //builder.setTitle(strTitle);
         }
         if (!strCancel.isEmpty()) {
             builder.setNegativeButton(strCancel, (dialog, id) -> dialog.cancel());
