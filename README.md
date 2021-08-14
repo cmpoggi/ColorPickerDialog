@@ -18,7 +18,7 @@ ColorPickerDialog colorPickerDialog = new ColorPickerDialog(
                     "text for OK button",
                     "text for cancel button",
                     "text for More button",
-                    this::textView.setColor); //listener method it will pass the selector color as int
+                    this::textView.setColor); //listener method it will pass the selected color as int
 ```
 
 You can show either the grid picker dialog or circle picker by using:
