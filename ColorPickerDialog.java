@@ -32,6 +32,13 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 
 public class ColorPickerDialog {
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String defAccept = "Ok";
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String defCancel = "Cancel";
+    @SuppressWarnings("FieldCanBeLocal")
+    private final String defMore = "More";
+
     private final Context mContext;
     private AlertDialog cpDialog;
     //textos de los botones / titulo del dialogo
@@ -45,6 +52,54 @@ public class ColorPickerDialog {
     private final int initialColor;
     private final int borderColor = 0xFF606060;
 
+    //parametros del gridPicker
+    private int gridColWidthDp;
+    private int gridItemCornerRadiusDp;
+    private int gridItemBorderDp;
+    private int gridColumns;
+    private int horSpacing;
+    private int verSpacing;
+    private boolean oneTouchSelect = false;
+    @SuppressWarnings("FieldMayBeFinal")
+    private ArrayList<Integer> gridColorList = new ArrayList<>();
+
+    private final int[] defaultColorList = {
+        //gray
+        0xFF212121, 0xFF424242, 0xFF616161, 0xFF757575, 0xFF9E9E9E, 0xFFBDBDBD, 0xFFEEEEEE, 0xFFF5F5F5,
+        //red
+        0xFFB71C1C, 0xFFC62828, 0xFFD32F2F, 0xFFE53935, 0xFFF44336, 0xFFEF5350, 0xFFE57373, 0xFFEF9A9A,
+        //deep orange
+        0xFFBF360C, 0xFFD84315, 0xFFE64A19, 0xFFF4511E, 0xFFFF5722, 0xFFFF7043, 0xFFFF8A65, 0xFFFFAB91,
+        //orange
+        0xFFE65100, 0xFFEF6C00, 0xFFF57C00, 0xFFFB8C00, 0xFFFF9800, 0xFFFFA726, 0xFFFFB74D, 0xFFFFCC80,
+        //amber
+        0xFFFF6F00, 0xFFFF8F00, 0xFFFFA000, 0xFFFFB300, 0xFFFFC107, 0xFFFFCA28, 0xFFFFD54F, 0xFFFFD54F,
+        //yellow
+        0xFFF57F17, 0xFFF9A825, 0xFFFBC02D, 0xFFFDD835, 0xFFFFEB3B, 0xFFFFEE58, 0xFFFFF176, 0xFFFFF59D,
+        //lime
+        0xFF827717, 0xFF9E9D24, 0xFFAFB42B, 0xFFC0CA33, 0xFFCDDC39, 0xFFD4E157, 0xFFDCE775, 0xFFE6EE9C,
+        //green
+        0xFF1B5E20, 0xFF2E7D32, 0xFF388E3C, 0xFF43A047, 0xFF4CAF50, 0xFF66BB6A, 0xFF81C784, 0xFFA5D6A7,
+        //teal
+        0xFF004D40, 0xFF00695C, 0xFF00796B, 0xFF00897B, 0xFF009688, 0xFF26A69A, 0xFF4DB6AC, 0xFF80CBC4,
+        //cyan
+        0xFF006064, 0xFF00838F, 0xFF0097A7, 0xFF00ACC1, 0xFF00BCD4, 0xFF26C6DA, 0xFF4DD0E1, 0xFF80DEEA,
+        //light blue
+        0xFF01579B, 0xFF0277BD, 0xFF0288D1, 0xFF039BE5, 0xFF03A9F4, 0xFF29B6F6, 0xFF4FC3F7, 0xFF81D4FA,
+        //blue
+        0xFF0D47A1, 0xFF1565C0, 0xFF1976D2, 0xFF1E88E5, 0xFF2196F3, 0xFF42A5F5, 0xFF64B5F6, 0xFF90CAF9,
+        //indigp
+        0xFF1A237E, 0xFF283593, 0xFF303F9F, 0xFF3949AB, 0xFF3F51B5, 0xFF5C6BC0, 0xFF7986CB, 0xFF9FA8DA,
+        //purple
+        0xFF4A148C, 0xFF6A1B9A, 0xFF7B1FA2, 0xFF8E24AA, 0xFF9C27B0, 0xFFAB47BC, 0xFFBA68C8, 0xFFCE93D8,
+        //pink
+        0xFF880E4F, 0xFFAD1457, 0xFFC2185B, 0xFFD81B60, 0xFFE91E63, 0xFFEC407A, 0xFFF06292, 0xFFF48FB1,
+        //brown
+        0xFF3E2723, 0xFF4E342E, 0xFF5D4037, 0xFF6D4C41, 0xFF795548, 0xFF8D6E63, 0xFFA1887F, 0xFFBCAAA4,
+        //blue grey
+        0xFF263238, 0xFF37474F, 0xFF455A64, 0xFF546E7A, 0xFF607D8B, 0xFF78909C, 0xFF90A4AE, 0xFFB0BEC5
+    };
+
     /* ***************************************************************************** */
     /* ******************************* Constructores ******************************* */
     /* ***************************************************************************** */
@@ -52,12 +107,13 @@ public class ColorPickerDialog {
                              onColorSelectedListener listener) {
         this.mContext = context;
         this.strTitle = title;
-        this.strAccept = "Ok";
-        this.strCancel = "Cancel";
-        this.strMore = "More";
+        this.strAccept = defAccept;
+        this.strCancel = defCancel;
+        this.strMore = defMore;
         this.initialColor = initColor;
         this.selectedColor = initColor;
         this.mListener = listener;
+        initColorPicker();
     }
 
     public ColorPickerDialog(Context context, int initColor, String title, String accept,
@@ -70,6 +126,7 @@ public class ColorPickerDialog {
         this.initialColor = initColor;
         this.selectedColor = initColor;
         this.mListener = listener;
+        initColorPicker();
     }
 
     public ColorPickerDialog(Context context, int initColor, String title, String accept,
@@ -82,66 +139,43 @@ public class ColorPickerDialog {
         this.initialColor = initColor;
         this.selectedColor = initColor;
         this.mListener = listener;
+        initColorPicker();
     }
+
+    private void initColorPicker() {
+        this.gridColWidthDp = 45;
+        this.gridItemCornerRadiusDp = 10;
+        this.gridItemBorderDp = 1;
+        this.horSpacing = 1;
+        this.verSpacing = 2;
+        this.gridColumns = GridView.AUTO_FIT; //GridView.AUTO_FIT (-1) //8
+    }
+
+    public void setGridItemCornerRadiusDp(int radiusDp) { this.gridItemCornerRadiusDp = radiusDp; }
+    public void setGridColumns(int nColumns) { this.gridColumns = nColumns; }
+    public void setGridColWidthDp(int colWidthDp) { this.gridColWidthDp = colWidthDp; }
+    public void setGridColorList(int[] colorArray) {
+        this.gridColorList.clear();
+        if (colorArray.length > 0) for (int color : colorArray) this.gridColorList.add(color);
+        else for (int color : defaultColorList) this.gridColorList.add(color);
+    }
+    public void setGridColorList(String[] colorArray) {
+        this.gridColorList.clear();
+        if (colorArray.length > 0) for (String color : colorArray)
+            this.gridColorList.add(Color.parseColor(color));
+        else for (int color : defaultColorList) this.gridColorList.add(color);
+    }
+    public void setOneTouchSelect(boolean oneTouch) { this.oneTouchSelect = oneTouch; }
 
     /* ***************************************************************************** */
     /* ******************************* GridPickerView ****************************** */
     /* ***************************************************************************** */
     private class GridPickerView extends GridView {
-        private final int columnWidthDp;
-        private final int itemRadiusDp;
-        private final int itemBorderDp;
-        private final int gridColumns;
-        private final int horSpacing;
-        private final int verSpacing;
-
-        private final String[] defaultColors = {
-            //gray
-            "#212121", "#424242", "#616161", "#757575", "#9E9E9E", "#BDBDBD", "#EEEEEE", "#F5F5F5",
-            //red
-            "#B71C1C", "#C62828", "#D32F2F", "#E53935", "#F44336", "#EF5350", "#E57373", "#EF9A9A",
-            //deep orange
-            "#BF360C", "#D84315", "#E64A19", "#F4511E", "#FF5722", "#FF7043", "#FF8A65", "#FFAB91",
-            //orange
-            "#E65100", "#EF6C00", "#F57C00", "#FB8C00", "#FF9800", "#FFA726", "#FFB74D", "#FFCC80",
-            //amber
-            "#FF6F00", "#FF8F00", "#FFA000", "#FFB300", "#FFC107", "#FFCA28", "#FFD54F", "#FFD54F",
-            //yellow
-            "#F57F17", "#F9A825", "#FBC02D", "#FDD835", "#FFEB3B", "#FFEE58", "#FFF176", "#FFF59D",
-            //lime
-            "#827717", "#9E9D24", "#AFB42B", "#C0CA33", "#CDDC39", "#D4E157", "#DCE775", "#E6EE9C",
-            //green
-            "#1B5E20", "#2E7D32", "#388E3C", "#43A047", "#4CAF50", "#66BB6A", "#81C784", "#A5D6A7",
-            //teal
-            "#004D40", "#00695C", "#00796B", "#00897B", "#009688", "#26A69A", "#4DB6AC", "#80CBC4",
-            //cyan
-            "#006064", "#00838F", "#0097A7", "#00ACC1", "#00BCD4", "#26C6DA", "#4DD0E1", "#80DEEA",
-            //light blue
-            "#01579B", "#0277BD", "#0288D1", "#039BE5", "#03A9F4", "#29B6F6", "#4FC3F7", "#81D4FA",
-            //blue
-            "#0D47A1", "#1565C0", "#1976D2", "#1E88E5", "#2196F3", "#42A5F5", "#64B5F6", "#90CAF9",
-            //indigp
-            "#1A237E", "#283593", "#303F9F", "#3949AB", "#3F51B5", "#5C6BC0", "#7986CB", "#9FA8DA",
-            //purple
-            "#4A148C", "#6A1B9A", "#7B1FA2", "#8E24AA", "#9C27B0", "#AB47BC", "#BA68C8", "#CE93D8",
-            //pink
-            "#880E4F", "#AD1457", "#C2185B", "#D81B60", "#E91E63", "#EC407A", "#F06292", "#F48FB1",
-            //brown
-            "#3E2723", "#4E342E", "#5D4037", "#6D4C41", "#795548", "#8D6E63", "#A1887F", "#BCAAA4",
-            //blue grey
-            "#263238", "#37474F", "#455A64", "#546E7A", "#607D8B", "#78909C", "#90A4AE", "#B0BEC5"
-        };
+        ArrayAdapter<Integer> arrayAdapter;
 
         //Constructor por defecto
         public GridPickerView(Context context) {
             super(context);
-            this.columnWidthDp = 45;
-            this.itemRadiusDp = 10;
-            this.itemBorderDp = 1;
-            this.horSpacing = 1;
-            this.verSpacing = 2;
-
-            this.gridColumns = GridView.AUTO_FIT; //GridView.AUTO_FIT (-1) //8
             initGridView();
         }
 
@@ -155,7 +189,7 @@ public class ColorPickerDialog {
 
             //Should be same as TextView width and height
             if (gridColumns==GridView.AUTO_FIT) {
-                this.setColumnWidth(dpToPx(columnWidthDp));
+                this.setColumnWidth(dpToPx(gridColWidthDp));
             }
 
             // Define addition settings of GridView for design purpose
@@ -167,28 +201,26 @@ public class ColorPickerDialog {
             this.setGravity(Gravity.CENTER);
 
             // Create an ArrayAdapter using colors list
-            ArrayList<Integer> colorList = new ArrayList<>();
-            for (String color : defaultColors) {
-                colorList.add(Color.parseColor(color));
-            }
-            ArrayAdapter<Integer> arrayAdapter = new ArrayAdapter<Integer>(mContext,
-                    android.R.layout.simple_list_item_1, colorList) {
+            for (int color : defaultColorList) gridColorList.add(color);
+
+            arrayAdapter = new ArrayAdapter<Integer>(mContext,
+                    android.R.layout.simple_list_item_1, gridColorList) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     // Cast the current view as a TextView
                     TextView view = (TextView) super.getView(position, convertView, parent);
 
                     // Get the current color from list
-                    int currentColor = colorList.get(position);
+                    int currentColor = gridColorList.get(position);
 
                     //border for textview
                     GradientDrawable gd = new GradientDrawable();
                     // Changes this drawbale to use a single color instead of a gradient
                     gd.setColor(currentColor);
-                    gd.setCornerRadius(dpToPx(itemRadiusDp));
-                    if (currentColor == initialColor)
-                        gd.setStroke(dpToPx(itemBorderDp+2), borderColor);
-                    else gd.setStroke(dpToPx(itemBorderDp), borderColor);
+                    if (gridItemCornerRadiusDp >0) gd.setCornerRadius(dpToPx(gridItemCornerRadiusDp));
+                    if (currentColor == selectedColor)
+                        gd.setStroke(dpToPx(gridItemBorderDp +3), borderColor);
+                    else gd.setStroke(dpToPx(gridItemBorderDp), borderColor);
 
                     // Set the background color of TextView as current color
                     view.setBackground(gd);
@@ -208,14 +240,14 @@ public class ColorPickerDialog {
                     // Set the TextView width and height in pixels
                     // Should be same as GridView column width
                     int columnWidth;
-                    if (gridColumns!=GridView.AUTO_FIT){
+                    if (gridColumns !=GridView.AUTO_FIT){
                         int offset=dpToPx(1);
-                        if (itemBorderDp>0) offset += dpToPx(itemBorderDp);
+                        if (gridItemBorderDp >0) offset += dpToPx(gridItemBorderDp);
                         if (horSpacing>0) offset += dpToPx(horSpacing);
                         columnWidth = (getColumnWidth() - offset);
                         //columnWidth = (gridView.getColumnWidth() - offset);
                     }
-                    else columnWidth = dpToPx(columnWidthDp);
+                    else columnWidth = dpToPx(gridColWidthDp);
                     params.width = columnWidth;
                     params.height = columnWidth;
                     // Set the TextView layout parameters
@@ -231,7 +263,11 @@ public class ColorPickerDialog {
             //establecer el color al tocar una casilla
             this.setOnItemClickListener((parent, view1, position, id) -> {
                 // Get the pickedColor from AdapterView
-                setSelectedColor((int)parent.getItemAtPosition(position));
+                if (oneTouchSelect) setSelectedColor((int)parent.getItemAtPosition(position));
+                else {
+                    selectedColor = (int) parent.getItemAtPosition(position);
+                    arrayAdapter.notifyDataSetChanged();
+                }
             });
         }
     }
@@ -241,26 +277,26 @@ public class ColorPickerDialog {
     /* ***************************************************************************** */
     private class CirclePickerView extends View {
         //bordes
-        private final Paint mBorderPaint; //ring brush border
-        private final Paint mCursorPaint; //cursor brush border
-        private final Paint mLinePaint; // divider brush
+        private Paint mBorderPaint; //ring brush border
+        private Paint mCursorPaint; //cursor brush border
+        private Paint mLinePaint; // divider brush
         //pinceles
-        private final Paint mPaint; //gradient color ring brush
-        private final Paint mCenterPaint; //Intermediate Circle Brush
-        private final Paint mRectPaint; //gradient square brush
+        private Paint mPaint; //gradient color ring brush
+        private Paint mCenterPaint; //Intermediate Circle Brush
+        private Paint mRectPaint; //gradient square brush
         //coordenadas
-        private final float rectLeft; // gradient square left x coordinate
-        private final float rectTop; //gradient square right x coordinate
-        private final float rectRight; //y coordinate on the gradient block
-        private final float rectBottom; //y coordinate under the gradient box
+        private float rectLeft; // gradient square left x coordinate
+        private float rectTop; //gradient square right x coordinate
+        private float rectRight; //y coordinate on the gradient block
+        private float rectBottom; //y coordinate under the gradient box
         //gradientes
-        private final int[] mCircleColors; //gradient color circle color
-        private final int[] mRectColors; //gradation block color
+        private int[] mCircleColors; //gradient color circle color
+        private int[] mRectColors; //gradation block color
         //medidas
         private final int mHeight;//View high
         private final int mWidth;//View wide
-        private final float r;// color circle radius (paint middle)
-        private final float centerRadius;// center circle radius
+        private float r;// color circle radius (paint middle)
+        private float centerRadius;// center circle radius
         //banderas
         private boolean downInCircle = true; // press on the gradient ring
         private boolean downInRect; // press on the gradient box
@@ -271,9 +307,9 @@ public class ColorPickerDialog {
         private float curCircleY;
         private float curRectX;
         private float curRectY;
-        private final float rectOffset;
+        private float rectOffset;
         private Shader rectShader;
-        private final RectF rectF;
+        private RectF rectF;
 
         public CirclePickerView(Context context, int height, int width) {
             super(context);
@@ -281,7 +317,10 @@ public class ColorPickerDialog {
             this.mWidth = width;
             setMinimumHeight(height);
             setMinimumWidth(width);
+            initCirclePicker();
+        }
 
+        void initCirclePicker() {
             mBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mBorderPaint.setColor(borderColor);
             mBorderPaint.setStrokeWidth(dpToPx(1));
@@ -299,11 +338,11 @@ public class ColorPickerDialog {
             mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mPaint.setShader(shader);
             mPaint.setStyle(Paint.Style.STROKE);
-            int circleStroke = (int) (width * 0.15f);
+            int circleStroke = (int) (mWidth * 0.15f);
             mPaint.setStrokeWidth(circleStroke);
             //radio externo (0.9f = 90% del dialogo)
             float viewPercent = 0.85f;
-            r = ((float) (width / 2) * viewPercent) - (mPaint.getStrokeWidth() * 0.5f);
+            r = ((float) (mWidth / 2) * viewPercent) - (mPaint.getStrokeWidth() * 0.5f);
 
             // Center circle parameters
             mCenterPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -662,6 +701,12 @@ public class ColorPickerDialog {
             builder.setNeutralButton(strMore, (dialog, id) -> {
                 dialog.dismiss();
                 showCirclePicker();
+            });
+        }
+        if (!oneTouchSelect) {
+            builder.setPositiveButton(strAccept, (dialog, id) -> {
+                setSelectedColor(selectedColor);
+                dialog.dismiss();
             });
         }
 
