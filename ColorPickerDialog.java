@@ -56,6 +56,7 @@ public class ColorPickerDialog {
     private int gridColWidthDp;
     private int gridItemCornerRadiusDp;
     private int gridItemBorderDp;
+    private int gridSelectedItemBorderDp;
     private int gridColumns;
     private int horSpacing;
     private int verSpacing;
@@ -144,28 +145,31 @@ public class ColorPickerDialog {
 
     private void initColorPicker() {
         this.gridColWidthDp = 45;
-        this.gridItemCornerRadiusDp = 10;
+        this.gridItemCornerRadiusDp = 0; //10
         this.gridItemBorderDp = 1;
+        this.gridSelectedItemBorderDp = 2;
         this.horSpacing = 1;
-        this.verSpacing = 2;
+        this.verSpacing = 1;
         this.gridColumns = GridView.AUTO_FIT; //GridView.AUTO_FIT (-1) //8
     }
 
     public void setGridItemCornerRadiusDp(int radiusDp) { this.gridItemCornerRadiusDp = radiusDp; }
     public void setGridColumns(int nColumns) { this.gridColumns = nColumns; }
     public void setGridColWidthDp(int colWidthDp) { this.gridColWidthDp = colWidthDp; }
+    public void setOneTouchSelect(boolean oneTouch) { this.oneTouchSelect = oneTouch; }
+
     public void setGridColorList(int[] colorArray) {
         this.gridColorList.clear();
         if (colorArray.length > 0) for (int color : colorArray) this.gridColorList.add(color);
         else for (int color : defaultColorList) this.gridColorList.add(color);
     }
+    //custom color list converter from strings
     public void setGridColorList(String[] colorArray) {
         this.gridColorList.clear();
         if (colorArray.length > 0) for (String color : colorArray)
             this.gridColorList.add(Color.parseColor(color));
         else for (int color : defaultColorList) this.gridColorList.add(color);
     }
-    public void setOneTouchSelect(boolean oneTouch) { this.oneTouchSelect = oneTouch; }
 
     /* ***************************************************************************** */
     /* ******************************* GridPickerView ****************************** */
@@ -213,20 +217,26 @@ public class ColorPickerDialog {
                     // Get the current color from list
                     int currentColor = gridColorList.get(position);
 
+                    // Set empty text in TextView
+                    view.setText("");
+
                     //border for textview
                     GradientDrawable gd = new GradientDrawable();
                     // Changes this drawbale to use a single color instead of a gradient
                     gd.setColor(currentColor);
                     if (gridItemCornerRadiusDp >0) gd.setCornerRadius(dpToPx(gridItemCornerRadiusDp));
-                    if (currentColor == selectedColor)
-                        gd.setStroke(dpToPx(gridItemBorderDp +3), borderColor);
+                    if (currentColor == selectedColor) {
+                        gd.setStroke(dpToPx(gridSelectedItemBorderDp), borderColor);
+                        view.setTextColor(Color.WHITE);
+                        view.setShadowLayer(4f, -1, 1, Color.BLACK);
+                        view.setText("\u2713"); //check mark
+                        view.setTypeface(Typeface.DEFAULT_BOLD);
+                        view.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+                    }
                     else gd.setStroke(dpToPx(gridItemBorderDp), borderColor);
 
                     // Set the background color of TextView as current color
                     view.setBackground(gd);
-
-                    // Set empty text in TextView
-                    view.setText("");
                     view.setPadding(0, 0, 0, 0);
 
                     // Set the layout parameters for TextView widget
