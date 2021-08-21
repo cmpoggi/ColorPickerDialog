@@ -9,8 +9,18 @@ Java class for android to display a color selector dialog which I wrote for my o
 ## How to use
 Just add the file in you android project.
 
-To create the dialog you must use:
+To create the dialog:
+```java
+ColorPickerDialog colorPickerDialog = new ColorPickerDialog(
+                    context,
+                    (int)initial_color,
+                    "title of dialog",
+                    "text for OK button",
+                    "text for cancel button",
+                    this::textView.setColor); //listener method it will pass the selected color as int
+```
 
+If you want to allow to use both color pickers you can add a "more" button
 ```java
 ColorPickerDialog colorPickerDialog = new ColorPickerDialog(
                     context,
