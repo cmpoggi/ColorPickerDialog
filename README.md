@@ -1,9 +1,8 @@
 # ColorPickerDialog
 Java class for android to display a color selector dialog which I wrote for my own projects which I decided to release as open source.
 
-
 ## Screenshots
-![gridpicker](https://user-images.githubusercontent.com/14188843/129220433-6db38ad0-c48d-4eb6-92b9-2d8ae96a975f.jpg) ![circlepicker](https://user-images.githubusercontent.com/14188843/129220481-3c249246-04b9-480b-88eb-74d476ef0496.jpg)
+![GridPicker](https://user-images.githubusercontent.com/14188843/130324178-35ced818-e863-4b5c-b765-972d43c2833e.png) ![CirclePicker](https://user-images.githubusercontent.com/14188843/130324191-a55d7768-b219-49cb-9831-073070fe0052.png)
 
 ## How to use
 Just add the file in you android project.
